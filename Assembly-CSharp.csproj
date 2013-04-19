@@ -5,7 +5,7 @@
 	<Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
 	<ProductVersion>10.0.20506</ProductVersion>
 	<SchemaVersion>2.0</SchemaVersion>
-	<ProjectGuid>{2393A960-F7DF-0C21-21A2-3ABCB92F825C}</ProjectGuid>
+	<ProjectGuid>{70856659-0D32-0409-E2F1-4D3FD4729007}</ProjectGuid>
 	<OutputType>Library</OutputType>
 	<AppDesignerFolder>Properties</AppDesignerFolder>
 	<RootNamespace></RootNamespace>
@@ -44,8 +44,11 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
+     <Compile Include="Assets\DenCity\ResourceManager.cs" />
+     <Compile Include="Assets\DenCity\Tile.cs" />
+     <Compile Include="Assets\DenCity\Tiles\Building.cs" />
+     <Compile Include="Assets\DenCity\Tiles\Road.cs" />
      <Compile Include="Assets\MainThread.cs" />
-     <Compile Include="Assets\ResourceManager.cs" />
      <Compile Include="Assets\Resources\Standard Assets\Water (Basic)\Sources\Scripts\WaterSimple.cs" />
      <Compile Include="Assets\TerrainGeneratorBehaviorScript.cs" />
      <Compile Include="Assets\UserInputScript.cs" />

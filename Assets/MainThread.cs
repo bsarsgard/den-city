@@ -1,5 +1,8 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+using DenCity;
+using DenCity.Tiles;
 
 public class MainThread : MonoBehaviour {
 	
@@ -16,11 +19,16 @@ public class MainThread : MonoBehaviour {
 	// Holds the board heights
 	private float[,] heightMap;
 	
+	// Holds game tiles
+	private Dictionary<Vector2, Tile> tileMap;
+	
 	private ArrayList buildings = new ArrayList();
 	
 	// Gui
 	private Rect menuBox;
 	private int selectionGridInt = -1;
+		
+	string[] selectionStrings = {"Clear", "Road", "Residential"};
 	
 	// Awake initializes before other GameObjects run Start
 	void Awake() {
@@ -33,6 +41,7 @@ public class MainThread : MonoBehaviour {
 		// Initialize terrain
 		terrainGenerator = GetComponent<TerrainGeneratorBehaviorScript>();
 		this.heightMap = terrainGenerator.HeightMap;
+		this.tileMap = new Dictionary<Vector2, Tile>();
 		
 		// Resize objects
 		roadPrefab.transform.localScale = new Vector3(terrainGenerator.TileWide / 10f, 1, terrainGenerator.TileHigh / 10f);
@@ -62,11 +71,25 @@ public class MainThread : MonoBehaviour {
 				// Check mouse
 				if (Input.GetMouseButtonUp(0)) // LMB Clicked
 				{
+					// Add object at cursor
 					Vector3 cubePoint = new Vector3(hit.point.x, hit.point.y, hit.point.z);
 					cubePoint.y += 0.1f;
 					cubePoint.x -= (cubePoint.x % terrainGenerator.TileWide) - terrainGenerator.TileWide / 2f;
 					cubePoint.z -= (cubePoint.z % terrainGenerator.TileHigh) - terrainGenerator.TileHigh / 2f;
 					Instantiate(activeCursor, cubePoint, Quaternion.identity);
+					
+					switch (selectionStrings[selectionGridInt]) {
+					case "Road":
+						activeCursor = roadPrefab;
+						break;
+					case "Residential":
+						activeCursor = residentialCubePrefab;
+						break;
+					case "Clear":
+					default:
+						activeCursor = null;
+						break;
+					}
 				}
 				else
 				{
@@ -95,8 +118,6 @@ public class MainThread : MonoBehaviour {
 			Debug.Log ("2");
 		}
 		*/
-		
-		string[] selectionStrings = {"Clear", "Road", "Residential"};
 
 		selectionGridInt = GUI.SelectionGrid (new Rect (20, 40, 80, 60), selectionGridInt, selectionStrings, 1);
 		

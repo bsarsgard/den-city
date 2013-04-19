@@ -1,0 +1,7 @@
+using UnityEngine;
+using System.Collections;
+ 
+namespace DenCity {
+    public class Tile {
+    }
+}

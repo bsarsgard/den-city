@@ -76,19 +76,29 @@ public class MainThread : MonoBehaviour {
 					cubePoint.y += 0.1f;
 					cubePoint.x -= (cubePoint.x % terrainGenerator.TileWide) - terrainGenerator.TileWide / 2f;
 					cubePoint.z -= (cubePoint.z % terrainGenerator.TileHigh) - terrainGenerator.TileHigh / 2f;
-					Instantiate(activeCursor, cubePoint, Quaternion.identity);
+					
+					Vector2 tilePoint = new Vector2(Mathf.FloorToInt(cubePoint.x / terrainGenerator.TileWide), Mathf.FloorToInt(cubePoint.z / terrainGenerator.TileHigh));
+					Tile tile = null;
 					
 					switch (selectionStrings[selectionGridInt]) {
 					case "Road":
-						activeCursor = roadPrefab;
+						tile = new Road();
 						break;
 					case "Residential":
-						activeCursor = residentialCubePrefab;
+						tile = new Building();
 						break;
 					case "Clear":
-					default:
-						activeCursor = null;
+						if (tileMap.ContainsKey(tilePoint)) {
+							Destroy(tileMap[tilePoint].TileObject);
+							tileMap.Remove(tilePoint);
+						}
 						break;
+					default:
+						break;
+					}
+					if (tile != null && !tileMap.ContainsKey(tilePoint)) {
+						tile.TileObject = Instantiate(activeCursor, cubePoint, Quaternion.identity);
+						tileMap.Add (tilePoint, tile);
 					}
 				}
 				else
@@ -121,17 +131,19 @@ public class MainThread : MonoBehaviour {
 
 		selectionGridInt = GUI.SelectionGrid (new Rect (20, 40, 80, 60), selectionGridInt, selectionStrings, 1);
 		
-		switch (selectionStrings[selectionGridInt]) {
-		case "Road":
-			activeCursor = roadPrefab;
-			break;
-		case "Residential":
-			activeCursor = residentialCubePrefab;
-			break;
-		case "Clear":
-		default:
-			activeCursor = null;
-			break;
+		if (selectionGridInt > 0) {
+			switch (selectionStrings[selectionGridInt]) {
+			case "Road":
+				activeCursor = roadPrefab;
+				break;
+			case "Residential":
+				activeCursor = residentialCubePrefab;
+				break;
+			case "Clear":
+			default:
+				activeCursor = null;
+				break;
+			}
 		}
 	}
 	

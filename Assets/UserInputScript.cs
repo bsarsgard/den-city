@@ -41,7 +41,6 @@ public class UserInputScript : MonoBehaviour {
 		// Drag right mouse button to move camera
 		if (Input.GetMouseButton(1)) // RMB
         {
-			Debug.Log ("RMB");
             // Hold button and drag camera around
             movement.x -= Input.GetAxis("Mouse X") * ResourceManager.ScrollSpeed * Time.deltaTime;
             movement.z -= Input.GetAxis("Mouse Y") * ResourceManager.ScrollSpeed * Time.deltaTime;
@@ -57,10 +56,10 @@ public class UserInputScript : MonoBehaviour {
 		
 		// Zoom in or out with PgUp/PgDn
 		if (Input.GetKey(KeyCode.PageUp)) {
-			movement.y -= ResourceManager.ZoomSpeed;
+			movement.y += ResourceManager.ZoomSpeed;
 		}
 		if (Input.GetKey(KeyCode.PageDown)) {
-			movement.y += ResourceManager.ZoomSpeed;
+			movement.y -= ResourceManager.ZoomSpeed;
 		}
  
         //calculate desired camera position based on received input

@@ -5,6 +5,8 @@ using DenCity;
 using DenCity.Tiles;
 
 public class MainThread : MonoBehaviour {
+	private float TICK_INTERVAL = 1f; // seconds
+	private float tick = 0;
 	
 	// objects and prefabs
 	public GameObject cursorPrefab;
@@ -21,8 +23,7 @@ public class MainThread : MonoBehaviour {
 	
 	// Holds game tiles
 	private Dictionary<Vector2, Tile> tileMap;
-	
-	private ArrayList buildings = new ArrayList();
+	private List<Building> buildings;
 	
 	// Gui
 	private Rect menuBox;
@@ -42,6 +43,7 @@ public class MainThread : MonoBehaviour {
 		terrainGenerator = GetComponent<TerrainGeneratorBehaviorScript>();
 		this.heightMap = terrainGenerator.HeightMap;
 		this.tileMap = new Dictionary<Vector2, Tile>();
+		this.buildings = new List<Building>();
 		
 		// Resize objects
 		roadPrefab.transform.localScale = new Vector3(terrainGenerator.TileWide / 10f, 1, terrainGenerator.TileHigh / 10f);
@@ -57,6 +59,15 @@ public class MainThread : MonoBehaviour {
 			this.Initialize();
 		}
 		
+		// Check ticks
+		if (Time.time > tick) {
+			tick += TICK_INTERVAL;
+			// Grow buildings
+			foreach (Building building in this.buildings) {
+				building.Grow();
+			}
+		}
+		
 		// Get on-screen mouse transltion
 		float ix = Input.mousePosition.x;
 		float iy = Input.mousePosition.y;
@@ -69,11 +80,43 @@ public class MainThread : MonoBehaviour {
 		    if (Physics.Raycast(ray, out hit))
 		    {
 				// Check mouse
-				if (Input.GetMouseButtonUp(0)) // LMB Clicked
+				if (Input.GetMouseButtonUp(0)) // LMB Clicked, drop cubes
 				{
 					// Add object at cursor
 					Vector3 cubePoint = new Vector3(hit.point.x, hit.point.y, hit.point.z);
-					cubePoint.y += 0.1f;
+					cubePoint.x -= (cubePoint.x % terrainGenerator.TileWide) - terrainGenerator.TileWide / 2f;
+					cubePoint.z -= (cubePoint.z % terrainGenerator.TileHigh) - terrainGenerator.TileHigh / 2f;
+					
+					Vector2 tilePoint = new Vector2(Mathf.FloorToInt(cubePoint.x / terrainGenerator.TileWide), Mathf.FloorToInt(cubePoint.z / terrainGenerator.TileHigh));
+					Building tile = null;
+					
+					switch (selectionStrings[selectionGridInt]) {
+					case "Residential":
+						tile = new Building();
+						break;
+					case "Clear":
+						if (tileMap.ContainsKey(tilePoint)) {
+							Destroy(tileMap[tilePoint].TileObject);
+							if (tileMap[tilePoint] is Building) {
+								buildings.Remove((Building)tileMap[tilePoint]);
+							}
+							tileMap.Remove(tilePoint);
+						}
+						break;
+					default:
+						break;
+					}
+					if (tile != null && !tileMap.ContainsKey(tilePoint)) {
+						cubePoint.y += activeCursor.transform.localScale.y / 2f;
+						tile.TileObject = (GameObject)Instantiate(activeCursor, cubePoint, Quaternion.identity);
+						tileMap.Add (tilePoint, tile);
+						buildings.Add(tile);
+					}
+				}
+				else if (Input.GetMouseButton(0)) // LMB down, paint planes
+				{
+					// Add object at cursor
+					Vector3 cubePoint = new Vector3(hit.point.x, hit.point.y, hit.point.z);
 					cubePoint.x -= (cubePoint.x % terrainGenerator.TileWide) - terrainGenerator.TileWide / 2f;
 					cubePoint.z -= (cubePoint.z % terrainGenerator.TileHigh) - terrainGenerator.TileHigh / 2f;
 					
@@ -84,20 +127,12 @@ public class MainThread : MonoBehaviour {
 					case "Road":
 						tile = new Road();
 						break;
-					case "Residential":
-						tile = new Building();
-						break;
-					case "Clear":
-						if (tileMap.ContainsKey(tilePoint)) {
-							Destroy(tileMap[tilePoint].TileObject);
-							tileMap.Remove(tilePoint);
-						}
-						break;
 					default:
 						break;
 					}
 					if (tile != null && !tileMap.ContainsKey(tilePoint)) {
-						tile.TileObject = Instantiate(activeCursor, cubePoint, Quaternion.identity);
+						cubePoint.y += 0.1f; // float a slight static height above the terrain
+						tile.TileObject = (GameObject)Instantiate(activeCursor, cubePoint, Quaternion.identity);
 						tileMap.Add (tilePoint, tile);
 					}
 				}
